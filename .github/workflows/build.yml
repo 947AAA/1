@@ -25,6 +25,9 @@ jobs:
           sudo tar xzf /tmp/ndk.tar.gz -C /opt/ndk
           ls /opt/ndk/
 
+      - name: Install linker dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libxml2
+
       - name: Find NDK clang
         run: |
           NDK_BIN=$(ls -d /opt/ndk/*/toolchains/llvm/prebuilt/*/bin 2>/dev/null | head -1)
