@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-user-binfmt
+
+      - name: Install NDK
+        run: |
+          curl -sL -o /tmp/ndk.tar.gz \
+            "https://github.com/SnowNF/ndk-aarch64-linux/releases/download/0.0.2/android-ndk-r29-linux-aarch64.tar.gz"
+          sudo mkdir -p /opt/ndk
+          sudo tar xzf /tmp/ndk.tar.gz -C /opt/ndk
+
+      - name: Build
+        run: |
+          export NDK=/opt/ndk/android-ndk-r29-linux-aarch64
+          export CC_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+          export CXX_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++
+          export AR_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          cargo build --target aarch64-linux-android --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patch_kernel_root
+          path: target/aarch64-linux-android/release/patch_kernel_root
