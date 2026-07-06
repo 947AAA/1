@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: |
           file $CC_aarch64_linux_android
-          RUSTFLAGS="-C linker=${CC_aarch64_linux_android} -C link-args=-fuse-ld=/usr/bin/lld" \
+          RUSTFLAGS="-C linker=${CC_aarch64_linux_android} -C link-args=-fuse-ld=/usr/bin/ld.lld" \
           cargo build --target aarch64-linux-android --release 2>&1
 
       - name: Verify binary
