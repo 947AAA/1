@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 fn main() {
     let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    let cpp_root = manifest_dir.join("../Lite_version/src/patch_kernel_root");
+    let cpp_root = manifest_dir.join("SKRoot/Lite_version/src/patch_kernel_root");
 
     let asmjit_root = cpp_root.join("3rdparty/asmjit2-src/src");
     let capstone_include = cpp_root.join("3rdparty/capstone-5.0.7/include");
@@ -144,5 +144,5 @@ fn main() {
 
     // Rerun if C++ sources change
     println!("cargo::rerun-if-changed=bridge.cpp");
-    println!("cargo::rerun-if-changed=../Lite_version/src/patch_kernel_root");
+    println!("cargo::rerun-if-changed=SKRoot/Lite_version/src/patch_kernel_root");
 }
