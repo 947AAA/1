@@ -17,26 +17,42 @@ jobs:
         with:
           targets: aarch64-linux-android
 
-      - name: Download NDK r29 (aarch64-native)
+      - name: Download NDK r29
         run: |
           curl -sL -o /tmp/ndk.tar.gz \
             "https://github.com/SnowNF/ndk-aarch64-linux/releases/download/0.0.2/android-ndk-r29-linux-aarch64.tar.gz"
           sudo mkdir -p /opt/ndk
           sudo tar xzf /tmp/ndk.tar.gz -C /opt/ndk
+          ls /opt/ndk/
+
+      - name: Find NDK clang
+        id: ndk
+        run: |
+          NDK_DIR=$(ls -d /opt/ndk/android-ndk-* 2>/dev/null | head -1)
+          echo "NDK_DIR=$NDK_DIR" >> $GITHUB_ENV
+          BIN_DIR=$(echo $NDK_DIR/toolchains/llvm/prebuilt/linux-*/bin)
+          echo "BIN_DIR=$BIN_DIR" >> $GITHUB_ENV
+          CLANG=$(ls $BIN_DIR/aarch64-linux-android*-clang 2>/dev/null | head -1)
+          CLANGXX=$(ls $BIN_DIR/aarch64-linux-android*-clang++ 2>/dev/null | head -1)
+          AR=$(ls $BIN_DIR/llvm-ar 2>/dev/null | head -1)
+          echo "clang: $CLANG"
+          echo "clang++: $CLANGXX"
+          echo "ar: $AR"
+          echo "CC_aarch64_linux_android=$CLANG" >> $GITHUB_ENV
+          echo "CXX_aarch64_linux_android=$CLANGXX" >> $GITHUB_ENV
+          echo "AR_aarch64_linux_android=$AR" >> $GITHUB_ENV
 
       - name: Build
         run: |
-          export NDK=/opt/ndk/android-ndk-r29-linux-aarch64
-          export CC_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
-          export CXX_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++
-          export AR_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
-          cargo build --target aarch64-linux-android --release
+          file $CC_aarch64_linux_android
+          cargo build --target aarch64-linux-android --release -v 2>&1
 
       - name: Verify binary
         run: |
+          ls -lh target/aarch64-linux-android/release/patch_kernel_root
           file target/aarch64-linux-android/release/patch_kernel_root
           echo "--- NEEDED ---"
-          readelf -d target/aarch64-linux-android/release/patch_kernel_root | grep NEEDED || echo "(none - statically linked)"
+          readelf -d target/aarch64-linux-android/release/patch_kernel_root | grep NEEDED || echo "(none)"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

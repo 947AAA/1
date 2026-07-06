@@ -1,3 +1,8 @@
-[target.aarch64-linux-android]
-linker = "/opt/android-ndk-r29-aarch64/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
-ar = "/opt/android-ndk-r29-aarch64/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+# NDK paths are configured via environment variables:
+#   CC_aarch64_linux_android / CXX_aarch64_linux_android / AR_aarch64_linux_android
+# Example (Linux aarch64):
+#   export NDK=/opt/android-ndk-r29
+#   export CC_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+#   export CXX_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++
+#   export AR_aarch64_linux_android=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+#   cargo build --target aarch64-linux-android --release
