@@ -2,16 +2,14 @@ use std::path::PathBuf;
 
 fn main() {
     let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    let cpp_root = manifest_dir.join("SKRoot/Lite_version/src/patch_kernel_root");
+    let cpp_root = manifest_dir.join("cpp");
 
     let asmjit_root = cpp_root.join("3rdparty/asmjit2-src/src");
     let capstone_include = cpp_root.join("3rdparty/capstone-5.0.7/include");
     let capstone_src = cpp_root.join("3rdparty/capstone-5.0.7/src");
 
-    // bridge.cpp is at Cargo project root
     let bridge_cpp = manifest_dir.join("bridge.cpp");
 
-    // ---- C++ project sources ----
     let project_srcs: Vec<String> = [
         "analyze/kallsyms_lookup_name.cpp",
         "analyze/kallsyms_lookup_name_4_6_0.cpp",
@@ -33,7 +31,6 @@ fn main() {
         "patch_kernel_root.cpp",
     ].iter().map(|f| cpp_root.join(f).to_string_lossy().to_string()).collect();
 
-    // ---- AsmJit sources (full: ARM64 + Core, exclude x86 for smaller binary) ----
     let asmjit_srcs: Vec<PathBuf> = [
         "asmjit/arm/a64assembler.cpp",
         "asmjit/arm/a64builder.cpp",
@@ -86,7 +83,6 @@ fn main() {
         "asmjit/core/zonevector.cpp",
     ].iter().map(|f| asmjit_root.join(f)).collect();
 
-    // ---- Capstone sources (AArch64 only) ----
     let capstone_srcs: Vec<PathBuf> = [
         "arch/AArch64/AArch64BaseInfo.c",
         "arch/AArch64/AArch64Disassembler.c",
@@ -102,7 +98,6 @@ fn main() {
         "utils.c",
     ].iter().map(|f| capstone_src.join(f)).collect();
 
-    // ---- Build C++ (bridge + project + asmjit) ----
     let mut cpp_build = cc::Build::new();
     cpp_build
         .cpp(true)
@@ -116,7 +111,6 @@ fn main() {
         .define("CAPSTONE_HAS_ARM64", None)
         .define("CAPSTONE_USE_SYS_DYN_MEM", None);
 
-    // Static link libc++ for Android (no libc++_shared.so dependency)
     if std::env::var("TARGET").unwrap_or_default() == "aarch64-linux-android" {
         cpp_build.cpp_link_stdlib(None);
         println!("cargo::rustc-link-arg=-lc++_static");
@@ -128,8 +122,6 @@ fn main() {
     for f in &asmjit_srcs { cpp_build.file(f); }
     cpp_build.compile("patch_core");
 
-    // ---- Build C (Capstone) ----
-    // ---- Build C (Capstone) ----
     let mut c_build = cc::Build::new();
     c_build
         .std("c11")
@@ -142,7 +134,6 @@ fn main() {
     for f in &capstone_srcs { c_build.file(f); }
     c_build.compile("capstone_core");
 
-    // Rerun if C++ sources change
     println!("cargo::rerun-if-changed=bridge.cpp");
-    println!("cargo::rerun-if-changed=SKRoot/Lite_version/src/patch_kernel_root");
+    println!("cargo::rerun-if-changed=cpp/");
 }
