@@ -1,4 +1,5 @@
-﻿#include "patch_kernel_root.h"
+﻿#include <unistd.h>
+#include "patch_kernel_root.h"
 #include "analyze/base_func.h"
 #include "analyze/symbol_analyze.h"
 #include "patch_do_execve.h"
