@@ -26,15 +26,12 @@ jobs:
           ls /opt/ndk/
 
       - name: Find NDK clang
-        id: ndk
         run: |
-          NDK_DIR=$(ls -d /opt/ndk/android-ndk-* 2>/dev/null | head -1)
-          echo "NDK_DIR=$NDK_DIR" >> $GITHUB_ENV
-          BIN_DIR=$(echo $NDK_DIR/toolchains/llvm/prebuilt/linux-*/bin)
-          echo "BIN_DIR=$BIN_DIR" >> $GITHUB_ENV
-          CLANG=$(ls $BIN_DIR/aarch64-linux-android*-clang 2>/dev/null | head -1)
-          CLANGXX=$(ls $BIN_DIR/aarch64-linux-android*-clang++ 2>/dev/null | head -1)
-          AR=$(ls $BIN_DIR/llvm-ar 2>/dev/null | head -1)
+          NDK_BIN=$(ls -d /opt/ndk/*/toolchains/llvm/prebuilt/*/bin 2>/dev/null | head -1)
+          echo "NDK_BIN=$NDK_BIN"
+          CLANG=$(ls $NDK_BIN/aarch64-linux-android*-clang 2>/dev/null | grep -v clang++ | head -1)
+          CLANGXX=$(ls $NDK_BIN/aarch64-linux-android*-clang++ 2>/dev/null | head -1)
+          AR=$(ls $NDK_BIN/llvm-ar 2>/dev/null | head -1)
           echo "clang: $CLANG"
           echo "clang++: $CLANGXX"
           echo "ar: $AR"
