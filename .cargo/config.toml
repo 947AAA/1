@@ -1,0 +1,3 @@
+[target.aarch64-linux-android]
+linker = "/opt/android-ndk-r29-aarch64/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
+ar = "/opt/android-ndk-r29-aarch64/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
