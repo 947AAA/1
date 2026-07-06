@@ -26,7 +26,7 @@ jobs:
           ls /opt/ndk/
 
       - name: Install linker dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq libxml2
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lld
 
       - name: Find NDK clang
         run: |
@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: |
           file $CC_aarch64_linux_android
-          RUSTFLAGS="-C linker=${CC_aarch64_linux_android}" \
+          RUSTFLAGS="-C linker=${CC_aarch64_linux_android} -C link-args=-fuse-ld=lld" \
           cargo build --target aarch64-linux-android --release 2>&1
 
       - name: Verify binary
