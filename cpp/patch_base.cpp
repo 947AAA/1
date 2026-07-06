@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <unistd.h>
 #include <unistd.h>
-﻿#include "patch_base.h"
+#include "patch_base.h"
 #include "3rdparty/find_mrs_register.h"
 
 using namespace asmjit;
