@@ -42,20 +42,7 @@ jobs:
           echo "AR_aarch64_linux_android=$AR" >> $GITHUB_ENV
 
       - name: Patch C++ sources for Android
-        run: |
-          SRCDIR=SKRoot/Lite_version/src/patch_kernel_root
-          # Add <unistd.h> for _exit()
-          sed -i '1i#include <unistd.h>' $SRCDIR/patch_base.cpp
-          # Fix IF_EXIT: remove system("pause"), keep exit
-          sed -i 's|printf("\[ERROR\] Patch empty addr!\\n"); system("pause"); exit(0)|fprintf(stderr, "[ERROR] Patch empty addr!\\n"); _exit(1)|' $SRCDIR/patch_kernel_root.h
-          # Add <cstdint> for uint32_t/uint64_t
-          sed -i 's|#include <vector>|&\n#include <cstdint>|' $SRCDIR/analyze/init_cred_searcher.h
-          # Add <cstring> for memcmp
-          sed -i 's|#include <algorithm>|&\n#include <cstring>|' $SRCDIR/analyze/init_cred_searcher.cpp
-          # Add <cctype> for isdigit
-          sed -i 's|#include <cstring>|&\n#include <cctype>|' $SRCDIR/analyze/kernel_version_parser.cpp
-          # Remove <filesystem> from header (not needed)
-          sed -i '/#include <filesystem>/d' $SRCDIR/patch_kernel_root.h
+        run: bash patch_sources.sh
 
       - name: Build
         run: |
