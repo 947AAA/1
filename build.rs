@@ -116,6 +116,13 @@ fn main() {
         .define("CAPSTONE_HAS_ARM64", None)
         .define("CAPSTONE_USE_SYS_DYN_MEM", None);
 
+    // Static link libc++ for Android (no libc++_shared.so dependency)
+    if std::env::var("TARGET").unwrap_or_default() == "aarch64-linux-android" {
+        cpp_build.cpp_link_stdlib(None);
+        println!("cargo::rustc-link-arg=-lc++_static");
+        println!("cargo::rustc-link-arg=-lc++abi");
+    }
+
     cpp_build.file(&bridge_cpp);
     for f in &project_srcs { cpp_build.file(f); }
     for f in &asmjit_srcs { cpp_build.file(f); }
